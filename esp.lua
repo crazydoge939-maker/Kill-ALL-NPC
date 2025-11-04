@@ -2,7 +2,8 @@ Script ALL SCRIPT
 
 local autoKill = false
 local killIntervalSeconds = 5
-local killedNamesCount = {} -- таблица для подсчета убитых за текущий период
+local killedCount = 0
+local killedNamesCount = {}
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game:GetService("CoreGui")
@@ -24,7 +25,7 @@ infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 infoLabel.Parent = ScreenGui
 
 local function updateGUI()
-    local text = "Убитых: " .. tostring(table.concat({tostring(killedCount)}, ", ")) .. "\n"
+    local text = "Убитых: " .. tostring(killedCount) .. "\n"
     for name, count in pairs(killedNamesCount) do
         text = text .. name .. " x" .. count .. "\n"
     end
@@ -43,34 +44,22 @@ end)
 while true do
     wait(killIntervalSeconds)
     if autoKill then
-        -- Обнуляем таблицу перед новым подсчетом
-        killedNamesCount = {}
         local killedThisCycle = false
-        local totalKilled = 0
-
         for _, npc in pairs(workspace:GetChildren()) do
+            -- проверяем, есть ли Humanoid
             local humanoid = npc:FindFirstChildOfClass("Humanoid")
             if humanoid and humanoid.Health > 0 and npc ~= game.Players.LocalPlayer.Character then
-                -- Убиваем NPC
+                -- убиваем
                 humanoid.Health = 0
                 local name = npc.Name
                 killedNamesCount[name] = (killedNamesCount[name] or 0) + 1
-                totalKilled = totalKilled + 1
+                killedCount = killedCount + 1
                 print("Убит: " .. name)
                 killedThisCycle = true
             end
         end
-
-        -- Обновляем общее количество убитых
-        killedCount = killedCount + totalKilled
-
-        -- Обновляем GUI
-        updateGUI()
-
-        -- Выводим в консоль текущие данные
-        print("Последний период убито NPC:")
-        for name, count in pairs(killedNamesCount) do
-            print(name .. ": " .. count)
+        if killedThisCycle then
+            updateGUI()
         end
     end
 end
